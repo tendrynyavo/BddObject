@@ -74,7 +74,7 @@ public class BddObject extends Bdd {
 
     public List<Column> getColumns() throws Exception {
         if (!this.isContainsID()) {
-            Column column = this.columns.get(0);
+            Column column = this.columns.get(this.columns.size() - 1);
             column.setName(this.getPrimaryKeyName());
             this.setContainsID(true);
         }
@@ -303,7 +303,7 @@ public class BddObject extends Bdd {
             c = c.getSuperclass();
         }
         Column column = new Column(c.getDeclaredField("id"));
-        columns.add(0, column);
+        columns.add(column);
         return columns;
     }
 

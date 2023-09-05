@@ -130,7 +130,7 @@ public class BddObject extends Bdd {
                     Field field = column.getField();
 
                     // * Condition pour eviter la reccurence de cette fonction
-                    if (value == null) {
+                    if (value == null || Primitives.isWrapperType(value.getClass())) {
                             
                         if (column.isForeignKey()) {
                             
@@ -202,8 +202,9 @@ public class BddObject extends Bdd {
                 if (value != null && !Primitives.isWrapperType(value.getClass())) {
                     // Pour les types BddObject la valeur est son ID
                     if (value instanceof BddObject) {
-                        predicat = ((BddObject) value).getFieldPrimaryKey().getName();
-                        value = value.getClass().getMethod("get" + toUpperCase(((BddObject) value).getFieldPrimaryKey().getField().getName())).invoke(value);
+                        BddObject obj = (BddObject) value;
+                        predicat = obj.getFieldPrimaryKey().getName();
+                        value = value.getClass().getMethod("get" + toUpperCase(obj.getFieldPrimaryKey().getField().getName())).invoke(obj);
                     }
                     sql.append(predicat + "=" + convertToLegal(value) + " AND ");
                 }

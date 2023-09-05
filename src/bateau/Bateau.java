@@ -41,7 +41,7 @@ public class Bateau extends BddObject {
         this.setRemorquage(Double.parseDouble(remorquage));
     }
 
-    public Double getRemorquage() {
+    public double getRemorquage() {
         return remorquage;
     }
 
@@ -124,6 +124,7 @@ public class Bateau extends BddObject {
     public static void main(String[] args) throws Exception {
         for (Bateau bateau : (Bateau[]) new Bateau().findAll(null)) {
             System.out.println(bateau.getId());
+            System.out.println(bateau.getProfondeur());
             System.out.println(bateau.getPavillon().getNom());
         }
     }

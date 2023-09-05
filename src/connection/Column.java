@@ -102,7 +102,6 @@ public class Column {
 
     public Column(Field field) throws Exception {
         this.setField(field);
-        // if (field.getName().equals("composition")) throw new Exception(Boolean.toString(field.getType().isArray()));
         this.setName((field.isAnnotationPresent(ColumnName.class)) ? field.getAnnotation(ColumnName.class).value() : field.getName());
         if (isBddObjectType(field.getType()) && !field.getType().isArray()) {
             this.setForeignKey(true);
@@ -130,6 +129,7 @@ public class Column {
         this.setField(this.getInside().getField());
     }
 
+    // Fonction pour vérifier la class si c'est un BddObject
     public static boolean isBddObjectType(Class<?> c) {
         return BddObject.class.isAssignableFrom(c);
     }

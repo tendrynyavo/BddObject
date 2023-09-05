@@ -4,6 +4,9 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.*;
+
+import com.google.common.primitives.Primitives;
+
 import formulaire.Formulaire;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -182,23 +185,31 @@ public class BddObject extends Bdd {
         return objects.toArray((Object[]) Array.newInstance(this.getClass(), objects.size())); // Fonction pour creer un tableau avec le generic
     }
 
+    /**
+     * Fonction pour creer le predicat de la requête SQL
+     * 
+     * @return 
+     * @throws Exception
+     */
     public String predicat() throws Exception {
-        String sql = " WHERE "; // Condition with AND clause
+        StringBuilder sql = new StringBuilder(" WHERE "); // Condition avec AND CLAUSE
         for (Column column : this.getColumns()) {
             String predicat = column.getName();
             if (!column.isNotInObject()) {
+                // Toutes les attributtes ayant une valeur non null seront sur le WHERE CLAUSE
                 Object value = this.getClass().getMethod("get" + toUpperCase(column.getField().getName())).invoke(this);
-                if (value != null) {
+                // Sauf les types primitives
+                if (value != null && !Primitives.isWrapperType(value.getClass())) {
+                    // Pour les types BddObject la valeur est son ID
                     if (value instanceof BddObject) {
                         predicat = ((BddObject) value).getFieldPrimaryKey().getName();
                         value = value.getClass().getMethod("get" + toUpperCase(((BddObject) value).getFieldPrimaryKey().getField().getName())).invoke(value);
                     }
-                    sql += predicat + "=" + convertToLegal(value) + " AND ";
+                    sql.append(predicat + "=" + convertToLegal(value) + " AND ");
                 }
             }
         }
-        if (sql.equals(" WHERE ")) return "";
-        return sql.substring(0, sql.length() - 5); // Delete last " AND " in sql
+        return (sql.toString().equals(" WHERE ")) ? "" : sql.substring(0, sql.length() - 5); // Delete last " AND " in sql
     }
 
     public List<Column> getColumnsNotNull() throws Exception {

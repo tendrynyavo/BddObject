@@ -1,5 +1,6 @@
 package connection;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -10,12 +11,12 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import connection.xml.XmlConnection;
 
-public class Bdd {
+public class Bdd implements Serializable {
     
-    Sequence sequence = new Sequence();
-    String connection;
-    String primaryKeyName;
-    String table; // table de cette object
+    transient Sequence sequence = new Sequence();
+    transient String connection;
+    transient String primaryKeyName;
+    transient String table; // table de cette object
 
     public Sequence getSequence() {
         return sequence;
@@ -133,7 +134,9 @@ public class Bdd {
         : (args.getClass() == Date.class) ? "TO_DATE('" + args + "', 'YYYY-MM-DD')"
         : (args.getClass() == Timestamp.class) ? "TO_TIMESTAMP('"+ args +"', 'YYYY-MM-DD HH24:MI:SS.FF')"
         : ((args.getClass() == String.class) || (args.getClass() == Time.class)) ? "'"+ args +"'"
-        : args.toString();
+        : (Number.class.isAssignableFrom(args.getClass())) ? args.toString()
+        : (BddObject.class.isAssignableFrom(args.getClass())) ? "'" + ((BddObject) args).getId() + "'"
+        : "'" + args.toString() + "'";
     }
 
     public static String toUpperCase(String name) {

@@ -4,9 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.*;
-
 import com.google.common.primitives.Primitives;
-
 import formulaire.Formulaire;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -15,24 +13,14 @@ import java.lang.reflect.Method;
 public class BddObject extends Bdd {
 
 /// Field
-    ArrayList<Column> columns;
-    Boolean serial = true;
-    Boolean containsID = false;
-    Boolean json = false;
+    transient ArrayList<Column> columns;
+    transient Boolean serial = true;
+    transient Boolean containsID = false;
     String id;
 
     public BddObject setId(String id) {
         this.id = id;
         return this;
-    }
-
-    public BddObject setJson(Boolean json) {
-        this.json = json;
-        return this;
-    }
-
-    public Boolean getJson() {
-        return json;
     }
 
     public String getId() {
@@ -165,8 +153,8 @@ public class BddObject extends Bdd {
                     }
                     
                     tmp.getClass().getMethod("set" + toUpperCase(field.getName()), field.getType()).invoke(tmp, value);
-                } 
-                
+                }
+
             }
             
             // * Charger les colonnes de type Array
@@ -224,25 +212,27 @@ public class BddObject extends Bdd {
     
     public void insert(Connection connection, Column... args) throws Exception {
         boolean connect = false;
-        if (connection == null) {connection = this.getConnection(); connect = true;}
-        if (Boolean.TRUE.equals(this.isSerial())) {
-            Column primaryKey = this.getFieldPrimaryKey();
-            Method setter = this.getClass().getMethod("set" + toUpperCase(primaryKey.getField().getName()), primaryKey.getField().getType());
-            setter.invoke(this, this.getSequence().buildPrimaryKey(connection));
-        }
-        try (Statement statement = connection.createStatement()) {
-            List<Column> columns = this.getColumnsNotNull();
-            for (Column arg : args) columns.add(arg);
-            String sql = "INSERT INTO " + this.getTable() + " " + createColumn(columns) + " VALUES ("; // Insert with all column
-            for (Column colonne : columns) {
-                Object value = colonne.getValue(this);
-                if (colonne.isForeignKey()) value = value.getClass().getMethod("get" + toUpperCase(((BddObject) value).getFieldPrimaryKey().getField().getName())).invoke(value);
-                sql += convertToLegal(value) + ",";
+        try {
+            if (connection == null) {connection = this.getConnection(); connect = true;}
+            if (Boolean.TRUE.equals(this.isSerial())) {
+                Column primaryKey = this.getFieldPrimaryKey();
+                Method setter = this.getClass().getMethod("set" + toUpperCase(primaryKey.getField().getName()), primaryKey.getField().getType());
+                setter.invoke(this, this.getSequence().buildPrimaryKey(connection));
             }
-            sql = sql.substring(0, sql.length() - 1) + ")";
-            statement.executeUpdate(sql);
+            try (Statement statement = connection.createStatement()) {
+                List<Column> columns = this.getColumnsNotNull();
+                for (Column arg : args) columns.add(arg);
+                String sql = "INSERT INTO " + this.getTable() + " " + createColumn(columns) + " VALUES ("; // Insert with all column
+                for (Column colonne : columns) {
+                    Object value = colonne.getValue(this);
+                    sql += convertToLegal(value) + ",";
+                }
+                sql = sql.substring(0, sql.length() - 1) + ")";
+                statement.executeUpdate(sql);
+            }
+        } finally {
+            if (connect) {connection.commit(); connection.close();}
         }
-        if (connect) {connection.commit(); connection.close();}
     }
     
     public String createColumn(List<Column> columns) throws Exception {
@@ -261,20 +251,23 @@ public class BddObject extends Bdd {
     
     public void update(Connection connection, Column... args) throws Exception {
         boolean connect = false;
-        if (connection == null) {connection = getConnection(); connect = true;}
-        try (Statement statement = connection.createStatement()) {
-            String sql = "UPDATE " + this.getTable() + " SET ";
-            List<Column> columns = this.getColumnsNotNull();
-            for (Column arg : args) columns.add(arg);
-            Column primaryKey = this.getFieldPrimaryKey();
-            for (Column column : columns) {
-                if (!column.getName().equals(primaryKey.getName())) sql += column.getName() + " = " + convertToLegal(column.getValue(this)) + ", ";
+        try {
+            if (connection == null) {connection = getConnection(); connect = true;}
+            try (Statement statement = connection.createStatement()) {
+                String sql = "UPDATE " + this.getTable() + " SET ";
+                List<Column> columns = this.getColumnsNotNull();
+                for (Column arg : args) columns.add(arg);
+                Column primaryKey = this.getFieldPrimaryKey();
+                for (Column column : columns) {
+                    if (!column.getName().equals(primaryKey.getName())) sql += column.getName() + " = " + convertToLegal(column.getValue(this)) + ", ";
+                }
+                sql = sql.substring(0, sql.length() - 2);
+                sql += " WHERE " + primaryKey.getName() + " = " + convertToLegal(primaryKey.getValue(this));
+                statement.executeUpdate(sql);
             }
-            sql = sql.substring(0, sql.length() - 2);
-            sql += " WHERE " + primaryKey.getName() + " = " + convertToLegal(primaryKey.getValue(this));
-            statement.executeUpdate(sql);
+        } finally {
+            if (connect) {connection.commit(); connection.close();}
         }
-        if (connect) {connection.commit(); connection.close();}
     }
 
     public Column getFieldPrimaryKey() throws Exception {
@@ -362,6 +355,11 @@ public class BddObject extends Bdd {
 
     public Formulaire createFormulaire(String action) throws Exception {
         return Formulaire.createFormulaire(this, action);
+    }
+
+    @Override
+    public String toString() {
+        return this.getId();
     }
     
 }

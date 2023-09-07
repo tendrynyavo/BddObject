@@ -32,5 +32,10 @@ public class Pavillon extends BddObject {
         this.setPrimaryKeyName("idpavillon");
         this.setConnection("PostgreSQL");
     }
+
+    public Pavillon(String string) throws Exception {
+        this();
+        this.setId(string);
+    }
     
 }

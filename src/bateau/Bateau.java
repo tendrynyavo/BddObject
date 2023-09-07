@@ -122,11 +122,11 @@ public class Bateau extends BddObject {
     }
 
     public static void main(String[] args) throws Exception {
-        for (Bateau bateau : (Bateau[]) new Bateau().findAll(null)) {
-            System.out.println(bateau.getId());
-            System.out.println(bateau.getProfondeur());
-            System.out.println(bateau.getPavillon().getNom());
-        }
+        Bateau bateau = new Bateau();
+        bateau.setId("BAT00PE1I");
+        bateau.setProfondeur(20);
+        bateau.setRemorquage(30);
+        bateau.update(null);
     }
 
 }

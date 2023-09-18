@@ -59,4 +59,14 @@ public class Sequence {
         return zero + seq;
     }
 
+    public Sequence(String prefix, int count, String function) throws IllegalArgumentException {
+        this.setPrefix(prefix);
+        this.setCountPK(count);
+        this.setFunctionPK(function);
+    }
+
+    public Sequence() {
+
+    }
+
 }

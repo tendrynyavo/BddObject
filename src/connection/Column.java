@@ -100,13 +100,14 @@ public class Column {
         this.setNotInObject(true);
     }
 
-    public Column(Field field) throws Exception {
+    public Column(BddObject obj, Field field) throws Exception {
         this.setField(field);
         this.setName((field.isAnnotationPresent(ColumnName.class)) ? field.getAnnotation(ColumnName.class).value() : field.getName());
         if (isBddObjectType(field.getType()) && !field.getType().isArray()) {
             this.setForeignKey(true);
             if (!(field.isAnnotationPresent(ColumnName.class))) {
-                this.setName(((BddObject) field.getType().getConstructor().newInstance()).getFieldPrimaryKey().getName());
+                String name = (field.getType().isAssignableFrom(obj.getClass())) ? obj.getPrimaryKeyName() : ((BddObject) field.getType().getConstructor().newInstance()).getPrimaryKeyName();
+                this.setName(name);
             }
         }
         if (field.isAnnotationPresent(Reference.class)) {

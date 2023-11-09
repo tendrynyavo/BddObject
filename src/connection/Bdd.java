@@ -1,6 +1,7 @@
 package connection;
 
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -128,15 +129,21 @@ public class Bdd implements Serializable {
         return colonnes;
     }
 
-    public String convertToLegal(Object args) {
+    public String convertToLegal(Object args) throws Exception {
         return (args == null) ? "null"
         : (args.getClass() == java.util.Date.class) ? "TO_TIMESTAMP('"+ new java.sql.Timestamp(((java.util.Date) args).getTime()) +"', 'YYYY-MM-DD HH24:MI:SS.FF')"
         : (args.getClass() == Date.class) ? "TO_DATE('" + args + "', 'YYYY-MM-DD')"
         : (args.getClass() == Timestamp.class) ? "TO_TIMESTAMP('"+ args +"', 'YYYY-MM-DD HH24:MI:SS.FF')"
         : ((args.getClass() == String.class) || (args.getClass() == Time.class)) ? "'"+ args +"'"
         : (Number.class.isAssignableFrom(args.getClass())) ? args.toString()
-        : (BddObject.class.isAssignableFrom(args.getClass())) ? "'" + ((BddObject) args).getId() + "'"
+        : (BddObject.class.isAssignableFrom(args.getClass())) ? "'" + convertToLegalBddObject((BddObject) args) + "'"
         : "'" + args.toString() + "'";
+    }
+
+    public String convertToLegalBddObject(BddObject args) throws Exception {
+        Column primaryKey = args.getFieldPrimaryKey();
+        Method getter = args.getClass().getMethod("get" + primaryKey.getField().getName().substring(0, 1).toUpperCase()  + primaryKey.getField().getName().substring(1));
+        return (String) getter.invoke(args);
     }
 
     public static String toUpperCase(String name) {

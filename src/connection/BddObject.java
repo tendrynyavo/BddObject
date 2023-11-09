@@ -239,10 +239,6 @@ public class BddObject extends Bdd {
         String result = "(";
         for (Column colonne : columns) {
             String name = colonne.getName();
-            if (colonne.isForeignKey()) {
-                BddObject fk = (BddObject) colonne.getField().getType().getConstructor().newInstance();
-                name = fk.getFieldPrimaryKey().getName();
-            }
             result += name  + ",";
         }
         result = result.substring(0, result.length() - 1) + ")";
@@ -304,10 +300,10 @@ public class BddObject extends Bdd {
         Class<?> c = this.getClass();
         ArrayList<Column> columns = new ArrayList<>();
         while (c != BddObject.class) {
-            for (Field field : c.getDeclaredFields()) columns.add(new Column(field));
+            for (Field field : c.getDeclaredFields()) columns.add(new Column(this, field));
             c = c.getSuperclass();
         }
-        Column column = new Column(c.getDeclaredField("id"));
+        Column column = new Column(this, c.getDeclaredField("id"));
         columns.add(column);
         return columns;
     }

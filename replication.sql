@@ -1,0 +1,4 @@
+CREATE TABLE user (
+    id SERIAL PRIMARY KEY,
+    nom VARCHAR(100) NOT NULL
+);

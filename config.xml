@@ -3,7 +3,7 @@
     <connection name="PostgreSQL">
         <host>localhost</host>
         <port>5432</port>
-        <database>port</database>
+        <database>stock</database>
         <user>postgres</user>
         <password>postgres</password>
     </connection>

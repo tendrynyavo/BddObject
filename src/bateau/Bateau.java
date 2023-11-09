@@ -10,6 +10,15 @@ public class Bateau extends BddObject {
     double remorquage;
     Pavillon pavillon;
     TypeBateau type;
+    Bateau bateau;
+
+    public Bateau getBateau() {
+        return bateau;
+    }
+
+    public void setBateau(Bateau bateau) {
+        this.bateau = bateau;
+    }
 
     public void setType(TypeBateau type) {
         this.type = type;
@@ -119,14 +128,6 @@ public class Bateau extends BddObject {
         form.setError(error);
         form.setTitle("Saisie de Bateau");
         return form;
-    }
-
-    public static void main(String[] args) throws Exception {
-        Bateau bateau = new Bateau();
-        bateau.setId("BAT00PE1I");
-        bateau.setProfondeur(20);
-        bateau.setRemorquage(30);
-        bateau.update(null);
     }
 
 }

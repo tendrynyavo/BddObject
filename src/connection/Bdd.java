@@ -46,6 +46,9 @@ public class Bdd implements Serializable {
             case "MySQL":
                 c = getMySQL();
                 break;
+            case "SQLite":
+                c = getSQLite();
+                break;
             default:
                 throw new IllegalArgumentException("Connection not found");
         }
@@ -103,6 +106,18 @@ public class Bdd implements Serializable {
     }
     
 /// Fonction pour prendre un connexion en PostgreSQL
+    public static Connection getSQLite() throws Exception {
+        Class.forName("org.sqlite.JDBC");
+        XmlConnection config = XmlConnection.createConnection("SQLite");
+        // db parameters
+        String url = String.format("jdbc:sqlite:%s", config.getDatabase());
+        // create a connection to the database
+        Connection connection = null;
+        connection = DriverManager.getConnection(url);
+        connection.setAutoCommit(false);
+        return connection;
+    }
+
     public static Connection getMySQL() throws Exception {
         Class.forName("org.mariadb.jdbc.Driver");
         XmlConnection config = XmlConnection.createConnection("MySQL");

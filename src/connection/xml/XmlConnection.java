@@ -3,6 +3,8 @@ package connection.xml;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import java.io.File;
+import java.net.URL;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 import org.w3c.dom.NodeList;
@@ -17,8 +19,6 @@ public class XmlConnection {
     String password;
 
     public void setHost(String host) throws Exception {
-        if (host == null) throw new Exception("Host est null");
-        if (host.isEmpty()) throw new Exception("Host est vide");
         this.host = host;
     }
 
@@ -27,8 +27,6 @@ public class XmlConnection {
     }
 
     public void setPort(String port) throws Exception {
-        if (port == null) throw new Exception("Port est null");
-        if (port.isEmpty()) throw new Exception("Port est vide");
         this.port = port;
     }
 
@@ -37,8 +35,6 @@ public class XmlConnection {
     }
 
     public void setDatabase(String database) throws Exception {
-        if (database == null) throw new Exception("Database name est null");
-        if (database.isEmpty()) throw new Exception("Database name est vide");
         this.database = database;
     }
 
@@ -47,7 +43,6 @@ public class XmlConnection {
     }
 
     public void setPassword(String password) throws Exception {
-        if (password == null) throw new Exception("Database name est null");
         this.password = password;
     }
 
@@ -56,7 +51,6 @@ public class XmlConnection {
     }
 
     public void setUser(String user) throws Exception {
-        if (user == null) throw new Exception("Database name est null");
         this.user = user;
     }
 
@@ -75,7 +69,8 @@ public class XmlConnection {
     public static XmlConnection createConnection(String product) throws Exception {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();
-        Document document = db.parse(new File("./config.xml")); // Fichier de configuration .xml
+        URL root = Thread.currentThread().getContextClassLoader().getResource("config.xml");
+        Document document = db.parse(root.getFile()); // Fichier de configuration .xml
         document.getDocumentElement().normalize(); // Pour normaliser les textes des elements
         NodeList list = document.getElementsByTagName("connection"); // root du fichier .xml
         for (int temp = 0; temp < list.getLength(); temp++) {

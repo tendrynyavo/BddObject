@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<bddobject>
+    <connection name="PostgreSQL">
+        <host>localhost</host>
+        <port>5432</port>
+        <database>stock</database>
+        <user>postgres</user>
+        <password>postgres</password>
+    </connection>
+    <connection name="ServerSQL">
+        <host>localhost</host>
+        <port></port>
+        <database>katsaka</database>
+        <user>DESKTOP-CAUQGVL\\Admin</user>
+        <password></password>
+    </connection>
+    <connection name="MySQL">
+        <host>172.31.240.1</host>
+        <port>3306</port>
+        <database>katsaka</database>
+        <user>tendry</user>
+        <password>tendry</password>
+    </connection>
+    <connection name="SQLite">
+        <host></host>
+        <port></port>
+        <database>D:\Software\chinook\chinook.db</database>
+        <user></user>
+        <password></password>
+    </connection>
+</bddobject>

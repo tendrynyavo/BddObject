@@ -1,5 +1,8 @@
 package article;
 
+import java.sql.Connection;
+
+import connection.Bdd;
 import connection.BddObject;
 
 public class Article extends BddObject {
@@ -47,6 +50,10 @@ public class Article extends BddObject {
         this.setTable("article");
         this.setPrimaryKeyName("id_article");
         this.setConnection("PostgreSQL");
+    }
+
+    public static void main(String[] args) throws Exception {
+        
     }
 
 }

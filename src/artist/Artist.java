@@ -1,5 +1,8 @@
 package artist;
 
+import java.io.IOException;
+import java.net.Socket;
+
 import connection.BddObject;
 
 public class Artist extends BddObject {

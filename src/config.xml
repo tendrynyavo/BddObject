@@ -24,7 +24,7 @@
     <connection name="SQLite">
         <host></host>
         <port></port>
-        <database>D:\Software\chinook\chinook.db</database>
+        <database>D:\Project\cluster-management\cluster.db</database>
         <user></user>
         <password></password>
     </connection>

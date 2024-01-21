@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.primitives.Primitives;
 import formulaire.Formulaire;
 import java.lang.reflect.Array;
@@ -13,8 +14,11 @@ import java.lang.reflect.Method;
 public class BddObject extends Bdd {
 
 /// Field
+    @JsonIgnore
     transient ArrayList<Column> columns;
+    @JsonIgnore
     transient Boolean serial = true;
+    @JsonIgnore
     transient Boolean containsID = false;
     String id;
 
@@ -64,11 +68,8 @@ public class BddObject extends Bdd {
     }
 
     public List<Column> getColumns() throws Exception {
-        if (!this.isContainsID()) {
-            Column column = this.columns.get(this.columns.size() - 1);
-            column.setName(this.getPrimaryKeyName());
-            this.setContainsID(true);
-        }
+        Column column = this.columns.get(this.columns.size() - 1);
+        column.setName(this.getPrimaryKeyName());
         return columns;
     }
 
@@ -95,12 +96,33 @@ public class BddObject extends Bdd {
 
 /// Tous requete peut etre en input sur cette fonction
     public Object[] getData(String query, Connection connection) throws Exception {
-        Object[] employees = null;
-        try (Statement statement = connection.createStatement(); 
-                ResultSet result = statement.executeQuery(query)) {
-            employees = this.convertToObject(result, listColumn(query, connection), connection);
+        Object[] objects = null;
+        boolean connect = false;
+        Statement statement = null;
+        ResultSet result = null;
+        try {
+            if (connection == null) {
+                connection = this.getConnection();
+                connect = true;
+            }
+
+            statement = connection.createStatement();
+            result = statement.executeQuery(query);
+            objects = this.convertToObject(result, listColumn(query, connection), connection);
+        } finally {
+            if (result != null) {
+                result.close();
+            }
+
+            if (statement != null) {
+                statement.close();
+            }
+
+            if (connect) {
+                connection.close();
+            }
         }
-        return employees;
+        return objects;
     }
 
 /// Convertir les réponse SQL en Object (T[])
@@ -213,12 +235,17 @@ public class BddObject extends Bdd {
     public void insert(Connection connection, Column... args) throws Exception {
         boolean connect = false;
         try {
-            if (connection == null) {connection = this.getConnection(); connect = true;}
+            if (connection == null) {
+                connection = this.getConnection();
+                connect = true;
+            }
+            
             if (Boolean.TRUE.equals(this.isSerial())) {
                 Column primaryKey = this.getFieldPrimaryKey();
                 Method setter = this.getClass().getMethod("set" + toUpperCase(primaryKey.getField().getName()), primaryKey.getField().getType());
                 setter.invoke(this, this.getSequence().buildPrimaryKey(connection));
             }
+            
             try (Statement statement = connection.createStatement()) {
                 List<Column> columns = this.getColumnsNotNull();
                 for (Column arg : args) columns.add(arg);
@@ -228,8 +255,10 @@ public class BddObject extends Bdd {
                     sql += convertToLegal(value) + ",";
                 }
                 sql = sql.substring(0, sql.length() - 1) + ")";
+                System.out.println( "Query is :::: " + sql );
                 statement.executeUpdate(sql);
             }
+            
         } finally {
             if (connect) {connection.commit(); connection.close();}
         }

@@ -10,13 +10,18 @@ import java.sql.ResultSetMetaData;
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import connection.xml.XmlConnection;
 
 public class Bdd implements Serializable {
     
+    @JsonIgnore
     transient Sequence sequence = new Sequence();
+    @JsonIgnore
     transient String connection;
+    @JsonIgnore
     transient String primaryKeyName;
+    @JsonIgnore
     transient String table; // table de cette object
 
     public Sequence getSequence() {

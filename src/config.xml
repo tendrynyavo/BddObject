@@ -28,4 +28,11 @@
         <user></user>
         <password></password>
     </connection>
+    <connection name="Oracle">
+        <host>localhost</host>
+        <port>1521</port>
+        <database></database>
+        <user>immobilisation</user>
+        <password>immobilisation</password>
+    </connection>
 </bddobject>
